@@ -1,72 +1,144 @@
 #include<bits/stdc++.h>
-
 using namespace std;
 
-int constraint[10010][3];
-int forward_match[10010];
-int index_of_variable[10010];
-int backward_match[100010];
-bool visited[100010];
+int V;
+vector<int> adj[40010];
+int map_variable[100010];
+map<int, int> 
+
+int graph[40010][40010];
+int residual[200000][200000];
+int parent[200000];
 int ans[100010];
+int m, n;
 
-bool find(int x){
-    for (int i = 0; i < 3; i++) {
-        int u = abs(constraint[x][i]);
-        if (!visited[u]){
-            visited[u] = true;
-            if (backward_match[u] == -1 || (find(backward_match[u]))) {
-                forward_match[x] = u;
-                backward_match[u] = x;
-                index_of_variable[x] = i;
-                return true;
-            }
-        }
+map<int, int> constraint[100010];
+
+void generate_graph() {
+    cin >> m >> n;
+    V = n + m + 2;
+    for (int i = 1; i <= n; i++) {
+        graph[0][i] = 1;
+        adj[0].push_back(i);
+        adj[i].push_back(0);
     }
-    return false;
-}
 
+    for (int i = n+1; i <= n+m; i++) {
+        graph[i][V-1] = 1;
+        adj[i].push_back(V-1);
+        adj[V-1].push_back(i);
+    }
 
-int main() {
-    int n, m;
-    string s;
-    cin >> s;
-    cin >> s;
-    cin >> n >> m;
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < 3; j++){
-            cin >> constraint[i][j];
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < 3; j++) {
+            int b;
+            cin >> b;
+            constraint[i][abs(b)] = b/abs(b);
+            b = abs(b);
+            graph[i][n+b] = 1;
+            adj[i].push_back(n+b);
+            adj[n+b].push_back(i);
         }
         int zero;
         cin >> zero;
     }
-    for (int i = 0; i < m; i++)
-        forward_match[i] = -1;
-    for (int i = 1; i <= n; i++)
-        backward_match[i] = -1;
+}
 
-    int match = 0;
-    for (int i = 0; i < m; i++) {
-        memset(visited, false, sizeof(visited));
-        if (find(i)) match++;
+bool bfs(){
+    bool visited[V];
+    memset(visited, false, sizeof(visited));
+    memset(parent, 0, sizeof(parent));
+
+    queue<int> q;
+    q.push(0);
+    visited[0] = true;
+    parent[0] = -1;
+    
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (auto v : adj[u]) {
+            if (!visited[v] && residual[u][v] > 0) {
+                q.push(v);
+                parent[v] = u;
+                visited[v] = true;
+            }
+        }
     }
-    assert(match == m);
+    
+    return (visited[V-1] == true);
+}
 
-    for (int i = 1; i <= n; i++) {
-        ans[i] = i;
+long long find_max_flow(){
+    long long max_flow = 0;
+
+    for (int i = 0; i < V; i++)
+        for (int j = 0; j < V; j++)
+            residual[i][j] = graph[i][j];
+
+    while (bfs()) {
+        int path_flow = INT_MAX;
+        int u = V-1;
+        while (parent[u] != -1) {
+            int v = parent[u];
+            path_flow = min(path_flow, residual[v][u]);
+            u = v;
+        }
+
+        u = V-1;
+        while (parent[u] != -1) {
+            int v = parent[u];
+            residual[v][u] -= path_flow;
+            residual[u][v] += path_flow;
+            u = v;
+        }
+
+        max_flow += (long long) path_flow;
     }
+    return max_flow;
+}
 
-    for (int i = 0; i < m; i++) {
-        int u = constraint[i][index_of_variable[i]];
-        if (u < 0) {
-            ans[abs(u)] *= -1;
+void print_graph(){
+    for (int i = 0; i < V; i++) {
+        cout << "node i: " << i << endl;
+        for (auto x : adj[i])
+            cout << x << ' ';
+        cout << endl;
+    }
+}
+
+void print_constraint() {
+    for (int i = 1; i < 6; i++) {
+        for (auto x : constraint[i]) 
+            cout << "constraint" << i << ":" << x.first << ":" << x.second << endl;
+    }
+}
+
+
+int main() {
+    string s;
+    cin >> s;
+    cin >> s;
+    generate_graph();
+
+    find_max_flow();
+    for (int i = n+1; i <= n+m; i++) {
+        for (auto x : adj[i]) {
+            if (x == V-1) 
+                continue;
+            if (residual[x][i] == 0) {
+                ans[i-n] = constraint[x][i-n];
+            }
         }
     }
 
     cout << "s SATISFIABLE\nv ";
 
-    for (int i = 1; i <= n; i++) {
-        cout << ans[i] << ' ';
+    for (int i = 1; i <= m; i++) {
+        cout << (ans[i]==0 ? i : i*ans[i]) << ' ';
     }
-    cout << 0 << endl;
+    cout << "0\n";
+
     return 0;
 }
