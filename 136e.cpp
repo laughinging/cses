@@ -59,6 +59,7 @@ int main() {
 
     memset(visited, false, sizeof(visited));
 
+
     cnt = 0;
     for (int i = n-1; i >= 0; i--) {    
         if (!visited[order[i]]) {
