@@ -3,7 +3,6 @@
 using namespace std;
 
 string x;
-
 bool apple_win(){
     int l = (int) x.length();
     if (x[0] == 'C')
