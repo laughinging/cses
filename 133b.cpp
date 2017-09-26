@@ -14,14 +14,9 @@ void draw(){
     int y = b;
     for (int i = a; i <= c; i++) {
         if (b < d) {
-
         }
-
-
     }
 }
-
-
 
 int main() {
     int n;
