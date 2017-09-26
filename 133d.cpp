@@ -19,7 +19,6 @@ int main() {
         cout << "QAQ" << endl;
         return 0;
     }
-
     if (even(a)) {
         cout << "(";
         print_double(a-2, "()");
