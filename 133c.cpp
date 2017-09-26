@@ -10,6 +10,7 @@ int main() {
     cin >> n;
     for (int i = 1; i <= n; i++)
         q.push(i);
+
     int k = 1;
     while (!q.empty()){
         for (int i = 0; i < k; i++) {
