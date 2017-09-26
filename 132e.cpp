@@ -5,6 +5,7 @@ int n, m;
 vector<int> adj[110];
 double graph[110][110];
 double residual[110][110];
+
 int parent[110];
 int degree[110];
 
