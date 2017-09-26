@@ -4,8 +4,7 @@ using namespace std;
 
 bool w[26][26];
 string x, y;
-int a[1000020];
-int b[1000020];
+int a[1000020], b[1000020];
 
 bool check(){
     int xl = (int) x.length();
